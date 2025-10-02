@@ -3,7 +3,9 @@
 
 <template>
   <header>
-
+    <router-link to="/">
+      <h1>Cafe Nomap</h1>
+    </router-link>
   </header>
   <main>
     <router-view />

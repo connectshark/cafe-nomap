@@ -1,8 +1,13 @@
 <script setup>
+import { useTemplateRef } from 'vue'
+import useMap from '../composable/useMap'
+
+const mapRef = useTemplateRef('mapRef')
+useMap(mapRef)
 </script>
 
 <template>
 <section>
-  <h1 class=" text-3xl/loose text-center">Hi</h1>
+  <div ref="mapRef" class="aspect-square"></div>
 </section>
 </template>
