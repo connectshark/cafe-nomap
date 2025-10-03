@@ -1,35 +1,41 @@
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref, toRaw } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-
-const map = ref(undefined)
-const bounds = ref(null)
-
+import "leaflet.markercluster/dist/leaflet.markercluster";
+import 'leaflet.markercluster/dist/MarkerCluster.css'
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 export default (mapRef) => {
+  const map = ref(undefined)
   const initMap = async () => {
     map.value = L.map(mapRef.value, {
       zoom: 16,
       center: [25.023293, 121.468481],
       renderer: L.canvas()
     })
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-      maxZoom: 18,
+    L.tileLayer('https://wmts.nlsc.gov.tw/wmts/EMAP/default/EPSG:3857/{z}/{y}/{x}', {
+      maxZoom: 20,
       minZoom: 14,
       bounds:[
         [19.715015145512087, 117.49902343749999],
         [26.892679095908164, 123.969482421875]
       ],
       attribution: ''
-    }).addTo(map.value)
+    }).addTo(toRaw(map.value))
+  }
 
-    bounds.value = map.value.getBounds()
-
-    map.value.on('moveend', () => {
-      bounds.value = map.value.getBounds()
+  const addMarkerLayer = async (points) => {
+    const cafesMarker = L.markerClusterGroup()
+    points.forEach(p => {
+      L.marker([p.latitude, p.longitude], {
+        icon: L.icon({
+          iconUrl: '/cafe.png',
+          iconSize: [30, 30]
+        })
+      })
+        .bindTooltip(p.name)
+        .addTo(toRaw(cafesMarker))
     })
-    map.value.on('zoomend', () => {
-      bounds.value = map.value.getBounds()
-    })
+    toRaw(map.value).addLayer(cafesMarker)
   }
 
   onMounted(initMap)
@@ -39,6 +45,6 @@ export default (mapRef) => {
 
   return {
     map,
-    bounds
+    addMarkerLayer
   }
 }
